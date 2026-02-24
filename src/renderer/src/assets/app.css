@@ -262,7 +262,7 @@ body,
 
 .collection-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, 180px);
+  grid-template-columns: repeat(auto-fill, 160px);
   gap: 16px;
   padding: 4px 0;
   overflow-y: auto;
@@ -288,11 +288,12 @@ body,
 .collection-cover {
   position: relative;
   width: 100%;
-  aspect-ratio: 1 / 1;
+  aspect-ratio: 2 / 3;
   background: #12122a;
   overflow: hidden;
   border-radius: 4px 4px 0 0;
   display: grid;
+  gap: 1px;
 }
 
 /* Composite poster grid layouts */
