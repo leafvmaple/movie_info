@@ -304,7 +304,7 @@ function App(): React.JSX.Element {
 
     // Update elapsed to total time (scan + sizes + metadata + NFO)
     if (scanResult) {
-      setScanStats({ ...scanResult, elapsed: Date.now() - totalStart })
+      setScanStats({ ...(scanResult as ScanStats), elapsed: Date.now() - totalStart })
     }
 
     // Save scan results to cache for next launch

@@ -406,7 +406,7 @@ export default function VideoList({
         onHeaderCell: () => ({
           resizeWidth: titleColumnWidth,
           onResizeWidth: onTitleColumnWidthChange
-        }),
+        }) as React.HTMLAttributes<HTMLElement>,
         sorter: (a: VideoGroup, b: VideoGroup) => {
           const ta = nfoMap.get(a.key)?.title || a.displayName
           const tb = nfoMap.get(b.key)?.title || b.displayName
@@ -435,7 +435,7 @@ export default function VideoList({
         onHeaderCell: () => ({
           resizeWidth: actorsColumnWidth,
           onResizeWidth: onActorsColumnWidthChange
-        }),
+        }) as React.HTMLAttributes<HTMLElement>,
         render: (_: unknown, record: VideoGroup) => {
           const nfo = nfoMap.get(record.key)
           if (!nfo?.actors?.length) return '-'
