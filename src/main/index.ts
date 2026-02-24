@@ -1,5 +1,5 @@
 import { app, shell, BrowserWindow, ipcMain, dialog } from 'electron'
-import { join, extname, basename, dirname } from 'path'
+import { join, extname, basename } from 'path'
 import { readFile, rm } from 'fs/promises'
 import { existsSync, readFileSync, writeFileSync } from 'fs'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
