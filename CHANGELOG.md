@@ -1,3 +1,9 @@
+## v0.3.1 (2026-02-24)
+
+### Changes
+
+- fix: resolve TypeScript errors and add pre-commit typecheck (9a52fbd)
+
 ## v0.3.0 (2026-02-24)
 
 ### Changes
