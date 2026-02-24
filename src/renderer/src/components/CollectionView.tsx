@@ -26,10 +26,7 @@ export interface Collection {
   groups: VideoGroup[]
 }
 
-// ─── Poster cache (shared module-level) ─────────────────────────────────────
-
-const posterCacheMap = new Map<string, string | null>()
-const posterLoadingSet = new Set<string>()
+import { hasPoster, getPoster, isLoading, markLoading, setPoster as setCachedPoster } from '../utils/posterCache'
 
 // ─── CollectionCover: composite poster (up to 9) ───────────────────────────
 
@@ -64,8 +61,8 @@ function CollectionCover({
           }
 
           candidates.forEach((g, i) => {
-            if (posterCacheMap.has(g.key)) {
-              results[i] = posterCacheMap.get(g.key)!
+            if (hasPoster(g.key)) {
+              results[i] = getPoster(g.key)!
               remaining--
               if (remaining === 0) {
                 setPosters([...results])
@@ -74,7 +71,7 @@ function CollectionCover({
               return
             }
 
-            if (posterLoadingSet.has(g.key)) {
+            if (isLoading(g.key)) {
               // already being loaded elsewhere; skip and fill null
               remaining--
               if (remaining === 0) {
@@ -83,10 +80,10 @@ function CollectionCover({
               }
               return
             }
-            posterLoadingSet.add(g.key)
+            markLoading(g.key)
 
             window.api.findPoster(g.dirPath, g.baseName).then((uri) => {
-              posterCacheMap.set(g.key, uri)
+              setCachedPoster(g.key, uri)
               results[i] = uri
               remaining--
               if (remaining === 0) {
@@ -160,12 +157,12 @@ function InnerGridCard({
 }): React.JSX.Element {
   const cardRef = useRef<HTMLDivElement>(null)
   const [posterUri, setPosterUri] = useState<string | null | undefined>(
-    posterCacheMap.has(group.key) ? posterCacheMap.get(group.key)! : undefined
+    hasPoster(group.key) ? getPoster(group.key)! : undefined
   )
 
   useEffect(() => {
-    if (posterCacheMap.has(group.key)) {
-      setPosterUri(posterCacheMap.get(group.key)!)
+    if (hasPoster(group.key)) {
+      setPosterUri(getPoster(group.key)!)
       return
     }
     const el = cardRef.current
@@ -175,10 +172,10 @@ function InnerGridCard({
       (entries) => {
         if (entries[0].isIntersecting) {
           observer.disconnect()
-          if (posterLoadingSet.has(group.key)) return
-          posterLoadingSet.add(group.key)
+          if (isLoading(group.key)) return
+          markLoading(group.key)
           window.api.findPoster(group.dirPath, group.baseName).then((uri) => {
-            posterCacheMap.set(group.key, uri)
+            setCachedPoster(group.key, uri)
             setPosterUri(uri)
           })
         }

@@ -55,9 +55,7 @@ function ResizableHeaderCell({ resizeWidth, onResizeWidth, children, style, ...r
 
 const tableComponents = { header: { cell: ResizableHeaderCell } }
 
-/** Shared poster cache across renders (module-level so it persists) */
-const posterCacheMap = new Map<string, string | null>()
-const posterLoadingSet = new Set<string>()
+import { hasPoster, getPoster, isLoading, markLoading, setPoster } from '../utils/posterCache'
 
 /** Grid card with IntersectionObserver-based lazy poster loading */
 function GridCard({
@@ -75,13 +73,12 @@ function GridCard({
 }): React.JSX.Element {
   const cardRef = useRef<HTMLDivElement>(null)
   const [posterUri, setPosterUri] = useState<string | null | undefined>(
-    posterCacheMap.has(group.key) ? posterCacheMap.get(group.key)! : undefined
+    hasPoster(group.key) ? getPoster(group.key) : undefined
   )
 
   useEffect(() => {
-    // Already loaded from cache
-    if (posterCacheMap.has(group.key)) {
-      setPosterUri(posterCacheMap.get(group.key)!)
+    if (hasPoster(group.key)) {
+      setPosterUri(getPoster(group.key))
       return
     }
 
@@ -92,11 +89,11 @@ function GridCard({
       (entries) => {
         if (entries[0].isIntersecting) {
           observer.disconnect()
-          if (posterLoadingSet.has(group.key)) return
-          posterLoadingSet.add(group.key)
+          if (isLoading(group.key)) return
+          markLoading(group.key)
 
           window.api.findPoster(group.dirPath, group.baseName).then((uri) => {
-            posterCacheMap.set(group.key, uri)
+            setPoster(group.key, uri)
             setPosterUri(uri)
           })
         }

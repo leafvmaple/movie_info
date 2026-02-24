@@ -16,6 +16,7 @@ import PropertyPanel from './components/PropertyPanel'
 import SettingsPanel from './components/SettingsModal'
 import CollectionView from './components/CollectionView'
 import ToolsPanel from './components/ToolsPanel'
+import { clearPosterCache } from './utils/posterCache'
 import { I18nProvider, createT } from './i18n'
 import type { Language } from './i18n'
 import type { VideoFile, VideoMetadata, NfoData, ScanStats } from '../../common/types'
@@ -163,6 +164,7 @@ function App(): React.JSX.Element {
     setNfoMap(new Map())
     setLoadingStatus('')
     setScanStats(null)
+    clearPosterCache()
     const totalStart = Date.now()
 
     // Remove any stale listeners from a previous interrupted scan
