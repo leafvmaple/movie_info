@@ -133,6 +133,9 @@ const ja: Record<TranslationKeys, string> = {
   removeDirFailed: 'ディレクトリの削除に失敗しました: ',
   loadSettingsFailed: '設定の読み込みに失敗しました: ',
   remove: '削除',
+  clearCache: 'キャッシュをクリア',
+  clearCacheSuccess: 'キャッシュをクリアしました',
+  clearCacheFailed: 'キャッシュのクリアに失敗しました: ',
   close: '閉じる',
 
   // Tabs

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { List, Button, message, Empty, Select, Divider, Space } from 'antd'
-import { PlusOutlined, DeleteOutlined, FolderOpenOutlined, SaveOutlined } from '@ant-design/icons'
+import { PlusOutlined, DeleteOutlined, FolderOpenOutlined, SaveOutlined, ClearOutlined } from '@ant-design/icons'
 import { useT } from '../i18n'
 import type { Language } from '../i18n'
 
@@ -133,6 +133,26 @@ export default function SettingsPanel({
           />
         )}
       </div>
+
+      <Divider />
+
+      <div style={{ marginBottom: 8 }}>
+        <strong>{t('clearCache')}</strong>
+      </div>
+      <Button
+        icon={<ClearOutlined />}
+        danger
+        onClick={async () => {
+          try {
+            await window.api.clearCache()
+            message.success(t('clearCacheSuccess'))
+          } catch (err) {
+            message.error(t('clearCacheFailed') + String(err))
+          }
+        }}
+      >
+        {t('clearCache')}
+      </Button>
 
       <div className="settings-actions">
         <Space>

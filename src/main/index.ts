@@ -160,6 +160,17 @@ function registerIpcHandlers(): void {
     }
   })
 
+  ipcMain.handle('clear-cache', async () => {
+    const removed: string[] = []
+    for (const f of [cacheFile, dirCacheFile]) {
+      if (existsSync(f)) {
+        await rm(f)
+        removed.push(f)
+      }
+    }
+    return { success: true, removed }
+  })
+
   // Settings
   ipcMain.handle('get-settings', () => {
     return getSettings()

@@ -20,6 +20,7 @@ interface CustomAPI {
   // Scan cache
   loadScanCache: () => Promise<VideoFile[] | null>
   saveScanCache: (files: VideoFile[]) => Promise<void>
+  clearCache: () => Promise<{ success: boolean }>
 
   // Settings
   getSettings: () => Promise<AppSettings>

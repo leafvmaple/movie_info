@@ -133,6 +133,9 @@ const en: Record<TranslationKeys, string> = {
   removeDirFailed: 'Failed to remove directory: ',
   loadSettingsFailed: 'Failed to load settings: ',
   remove: 'Remove',
+  clearCache: 'Clear Cache',
+  clearCacheSuccess: 'Cache cleared',
+  clearCacheFailed: 'Failed to clear cache: ',
   close: 'Close',
 
   // Tabs

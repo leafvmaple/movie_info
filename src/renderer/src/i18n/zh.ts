@@ -131,6 +131,9 @@ const zh = {
   removeDirFailed: '移除目录失败: ',
   loadSettingsFailed: '加载设置失败: ',
   remove: '移除',
+  clearCache: '清除缓存',
+  clearCacheSuccess: '缓存已清除',
+  clearCacheFailed: '清除缓存失败: ',
   close: '关闭',
 
   // Tabs
