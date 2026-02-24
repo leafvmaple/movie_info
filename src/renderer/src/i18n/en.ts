@@ -21,6 +21,8 @@ const en: Record<TranslationKeys, string> = {
 
   // Table columns
   colFileName: 'Filename',
+  colTitle: 'Title',
+  colActors: 'Actors',
   colCodec: 'Codec',
   colResolution: 'Resolution',
   colDuration: 'Duration',
@@ -132,6 +134,7 @@ const en: Record<TranslationKeys, string> = {
 
   // Tabs
   tabList: 'List',
+  tabArchive: 'Archive',
   tabCollections: 'Collections',
   tabSettings: 'Settings',
   tabAbout: 'About',

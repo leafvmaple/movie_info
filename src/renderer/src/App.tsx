@@ -7,7 +7,8 @@ import {
   InfoCircleOutlined,
   GithubOutlined,
   MailOutlined,
-  FolderOutlined
+  FolderOutlined,
+  InboxOutlined
 } from '@ant-design/icons'
 import VideoList from './components/VideoList'
 import PropertyPanel from './components/PropertyPanel'
@@ -98,24 +99,36 @@ function App(): React.JSX.Element {
   const [selectedGroup, setSelectedGroup] = useState<VideoGroup | null>(null)
   const [nfoData, setNfoData] = useState<NfoData | null>(null)
   const [nfoMap, setNfoMap] = useState<Map<string, NfoData>>(new Map())
-  const [activeTab, setActiveTab] = useState<'list' | 'collections' | 'settings' | 'about'>('list')
+  const [activeTab, setActiveTab] = useState<'list' | 'archive' | 'collections' | 'settings' | 'about'>('list')
   const [loading, setLoading] = useState(false)
   const [loadingStatus, setLoadingStatus] = useState('')
   const [nfoLoading, setNfoLoading] = useState(false)
   const [ffprobeAvailable, setFfprobeAvailable] = useState(true)
   const [language, setLanguage] = useState<Language>('zh')
   const [appVersion, setAppVersion] = useState('')
+  const [titleColumnWidth, setTitleColumnWidth] = useState<number>(250)
+  const [actorsColumnWidth, setActorsColumnWidth] = useState<number>(160)
 
   const t = useMemo(() => createT(language), [language])
 
   // Grouped videos — memoized from raw file list
   const videoGroups = useMemo(() => groupVideos(rawFiles), [rawFiles])
 
+  // Split into NFO groups (list) and non-NFO groups (archive)
+  const nfoGroups = useMemo(() => videoGroups.filter((g) => g.nfoPath), [videoGroups])
+  const archiveGroups = useMemo(() => videoGroups.filter((g) => !g.nfoPath), [videoGroups])
+
   // Load language from settings on mount
   useEffect(() => {
     window.api.getSettings().then((settings) => {
       if (settings.language) {
         setLanguage(settings.language)
+      }
+      if (settings.titleColumnWidth) {
+        setTitleColumnWidth(settings.titleColumnWidth)
+      }
+      if (settings.actorsColumnWidth) {
+        setActorsColumnWidth(settings.actorsColumnWidth)
       }
     })
     window.api.getAppVersion().then(setAppVersion)
@@ -399,11 +412,12 @@ function App(): React.JSX.Element {
           value={activeTab}
           options={[
             { label: t('tabList'), value: 'list', icon: <UnorderedListOutlined /> },
+            { label: t('tabArchive'), value: 'archive', icon: <InboxOutlined /> },
             { label: t('tabCollections'), value: 'collections', icon: <FolderOutlined /> },
             { label: t('tabSettings'), value: 'settings', icon: <SettingOutlined /> },
             { label: t('tabAbout'), value: 'about', icon: <InfoCircleOutlined /> }
           ]}
-          onChange={(val) => setActiveTab(val as 'list' | 'collections' | 'settings' | 'about')}
+          onChange={(val) => setActiveTab(val as 'list' | 'archive' | 'collections' | 'settings' | 'about')}
         />
         <div className="header-actions">
           <Button
@@ -420,7 +434,46 @@ function App(): React.JSX.Element {
         <div className="video-list-panel">
           {activeTab === 'list' && (
             <VideoList
-              groups={videoGroups}
+              mode="list"
+              groups={nfoGroups}
+              nfoMap={nfoMap}
+              selectedGroup={selectedGroup}
+              onSelect={handleSelectGroup}
+              loading={loading}
+              loadingStatus={loadingStatus}
+              rawFileCount={rawFiles.length}
+              titleColumnWidth={titleColumnWidth}
+              onTitleColumnWidthChange={(w) => {
+                setTitleColumnWidth(w)
+                window.api.getSettings().then((s) => {
+                  window.api.saveSettings({ ...s, titleColumnWidth: w })
+                })
+              }}
+              actorsColumnWidth={actorsColumnWidth}
+              onActorsColumnWidthChange={(w) => {
+                setActorsColumnWidth(w)
+                window.api.getSettings().then((s) => {
+                  window.api.saveSettings({ ...s, actorsColumnWidth: w })
+                })
+              }}
+              onDeleteGroup={(groupKey) => {
+                setRawFiles((prev) => {
+                  const group = videoGroups.find((g) => g.key === groupKey)
+                  if (!group) return prev
+                  const pathsToRemove = new Set(group.parts.map((p) => p.path))
+                  return prev.filter((f) => !pathsToRemove.has(f.path))
+                })
+                if (selectedGroup?.key === groupKey) {
+                  setSelectedGroup(null)
+                }
+              }}
+            />
+          )}
+
+          {activeTab === 'archive' && (
+            <VideoList
+              mode="archive"
+              groups={archiveGroups}
               nfoMap={nfoMap}
               selectedGroup={selectedGroup}
               onSelect={handleSelectGroup}
@@ -547,7 +600,7 @@ function App(): React.JSX.Element {
           )}
         </div>
         <div className="property-panel">
-          {(activeTab === 'list' || activeTab === 'collections') && (
+          {(activeTab === 'list' || activeTab === 'archive' || activeTab === 'collections') && (
             <PropertyPanel
               group={selectedGroup}
               nfoData={nfoData}

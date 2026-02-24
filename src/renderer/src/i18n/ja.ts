@@ -21,6 +21,8 @@ const ja: Record<TranslationKeys, string> = {
 
   // Table columns
   colFileName: 'ファイル名',
+  colTitle: 'タイトル',
+  colActors: '俳優',
   colCodec: 'コーデック',
   colResolution: '解像度',
   colDuration: '再生時間',
@@ -132,6 +134,7 @@ const ja: Record<TranslationKeys, string> = {
 
   // Tabs
   tabList: 'リスト',
+  tabArchive: 'アーカイブ',
   tabCollections: 'コレクション',
   tabSettings: '設定',
   tabAbout: 'について',

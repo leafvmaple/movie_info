@@ -16,6 +16,45 @@ import type { VideoGroup, VideoFileWithMeta } from '../App'
 import type { NfoData } from '../../../common/types'
 import { useT } from '../i18n'
 
+/* ---- Resizable header cell for Ant Design Table ---- */
+interface ResizableCellProps extends React.ThHTMLAttributes<HTMLTableCellElement> {
+  resizeWidth?: number
+  onResizeWidth?: (width: number) => void
+}
+
+function ResizableHeaderCell({ resizeWidth, onResizeWidth, children, style, ...rest }: ResizableCellProps): React.JSX.Element {
+  if (!resizeWidth || !onResizeWidth) {
+    return <th style={style} {...rest}>{children}</th>
+  }
+  return (
+    <th style={{ ...style, position: 'relative' }} {...rest}>
+      {children}
+      <span
+        className="col-resize-handle"
+        onMouseDown={(e) => {
+          e.preventDefault()
+          e.stopPropagation()
+          const startX = e.clientX
+          const startWidth = resizeWidth
+          const onMove = (ev: MouseEvent): void => {
+            const newW = Math.max(100, startWidth + ev.clientX - startX)
+            onResizeWidth(newW)
+          }
+          const onUp = (): void => {
+            document.removeEventListener('mousemove', onMove)
+            document.removeEventListener('mouseup', onUp)
+          }
+          document.addEventListener('mousemove', onMove)
+          document.addEventListener('mouseup', onUp)
+        }}
+        onClick={(e) => e.stopPropagation()}
+      />
+    </th>
+  )
+}
+
+const tableComponents = { header: { cell: ResizableHeaderCell } }
+
 /** Shared poster cache across renders (module-level so it persists) */
 const posterCacheMap = new Map<string, string | null>()
 const posterLoadingSet = new Set<string>()
@@ -103,6 +142,7 @@ interface ContextMenuState {
 }
 
 interface VideoListProps {
+  mode?: 'list' | 'archive'
   groups: VideoGroup[]
   nfoMap: Map<string, NfoData>
   selectedGroup: VideoGroup | null
@@ -111,6 +151,10 @@ interface VideoListProps {
   loadingStatus?: string
   rawFileCount: number
   onDeleteGroup?: (groupKey: string) => void
+  titleColumnWidth?: number
+  onTitleColumnWidthChange?: (width: number) => void
+  actorsColumnWidth?: number
+  onActorsColumnWidthChange?: (width: number) => void
 }
 
 /**
@@ -167,6 +211,7 @@ function renderCodecTag(codec: string | undefined): React.ReactNode {
 }
 
 export default function VideoList({
+  mode = 'list',
   groups,
   nfoMap,
   selectedGroup,
@@ -174,7 +219,11 @@ export default function VideoList({
   loading,
   loadingStatus,
   rawFileCount,
-  onDeleteGroup
+  onDeleteGroup,
+  titleColumnWidth = 250,
+  onTitleColumnWidthChange,
+  actorsColumnWidth = 160,
+  onActorsColumnWidthChange
 }: VideoListProps): React.JSX.Element {
   const t = useT()
   const [searchKeyword, setSearchKeyword] = useState('')
@@ -271,84 +320,147 @@ export default function VideoList({
       }
     })
   }, [contextMenu.group, t, onDeleteGroup])
-  const columns: ColumnsType<VideoGroup> = useMemo(
-    () => [
-      {
-        title: t('colFileName'),
-        key: 'displayName',
-        ellipsis: true,
-        sorter: (a, b) => a.displayName.localeCompare(b.displayName),
-        width: '30%',
-        render: (_, record) => (
-          <span>
-            {record.displayName}
-            {record.partCount > 1 && (
-              <Tag color="cyan" style={{ marginLeft: 6 }}>
-                {record.partCount} CD
-              </Tag>
-            )}
-          </span>
-        )
+  const columns: ColumnsType<VideoGroup> = useMemo(() => {
+    /* Common columns shared by both modes */
+    const colCodec = {
+      title: t('colCodec'),
+      key: 'codec',
+      width: 90,
+      render: (_: unknown, record: VideoGroup) => renderCodecTag(record.metadata?.videoCodec),
+      sorter: (a: VideoGroup, b: VideoGroup) =>
+        (a.metadata?.videoCodec || '').localeCompare(b.metadata?.videoCodec || '')
+    }
+    const colResolution = {
+      title: t('colResolution'),
+      key: 'resolution',
+      width: 110,
+      render: (_: unknown, record: VideoGroup) => {
+        const m = record.metadata
+        if (!m || !m.width) return '-'
+        return `${m.width}×${m.height}`
       },
-      {
-        title: t('colCodec'),
-        key: 'codec',
-        width: 90,
-        render: (_, record) => renderCodecTag(record.metadata?.videoCodec),
-        sorter: (a, b) =>
-          (a.metadata?.videoCodec || '').localeCompare(b.metadata?.videoCodec || '')
-      },
-      {
-        title: t('colResolution'),
-        key: 'resolution',
-        width: 110,
-        render: (_, record) => {
-          const m = record.metadata
-          if (!m || !m.width) return '-'
-          return `${m.width}×${m.height}`
+      sorter: (a: VideoGroup, b: VideoGroup) =>
+        (a.metadata?.width || 0) - (b.metadata?.width || 0)
+    }
+    const colDuration = {
+      title: t('colDuration'),
+      key: 'duration',
+      width: 90,
+      render: (_: unknown, record: VideoGroup) =>
+        formatDuration(record.totalDuration || record.metadata?.duration || 0),
+      sorter: (a: VideoGroup, b: VideoGroup) =>
+        (a.totalDuration || 0) - (b.totalDuration || 0)
+    }
+    const colBitrate = {
+      title: t('colBitrate'),
+      key: 'bitrate',
+      width: 100,
+      render: (_: unknown, record: VideoGroup) =>
+        formatBitrate(record.metadata?.bitrate || 0),
+      sorter: (a: VideoGroup, b: VideoGroup) =>
+        (a.metadata?.bitrate || 0) - (b.metadata?.bitrate || 0)
+    }
+    const colSize = {
+      title: t('colSize'),
+      key: 'size',
+      width: 90,
+      render: (_: unknown, record: VideoGroup) => (
+        <span className="file-size">{formatSize(record.totalSize)}</span>
+      ),
+      sorter: (a: VideoGroup, b: VideoGroup) => a.totalSize - b.totalSize
+    }
+
+    if (mode === 'archive') {
+      /* Archive mode: show raw filename, no actors / NFO columns */
+      return [
+        {
+          title: t('colFileName'),
+          key: 'displayName',
+          ellipsis: true,
+          sorter: (a: VideoGroup, b: VideoGroup) =>
+            a.displayName.localeCompare(b.displayName),
+          width: '30%',
+          render: (_: unknown, record: VideoGroup) => (
+            <span>
+              {record.displayName}
+              {record.partCount > 1 && (
+                <Tag color="cyan" style={{ marginLeft: 6 }}>
+                  {record.partCount} CD
+                </Tag>
+              )}
+            </span>
+          )
         },
-        sorter: (a, b) => (a.metadata?.width || 0) - (b.metadata?.width || 0)
+        colCodec,
+        colResolution,
+        colDuration,
+        colBitrate,
+        colSize
+      ]
+    }
+
+    /* List mode: title from NFO, actors column, resizable widths */
+    return [
+      {
+        title: t('colTitle'),
+        key: 'title',
+        ellipsis: true,
+        width: titleColumnWidth,
+        onHeaderCell: () => ({
+          resizeWidth: titleColumnWidth,
+          onResizeWidth: onTitleColumnWidthChange
+        }),
+        sorter: (a: VideoGroup, b: VideoGroup) => {
+          const ta = nfoMap.get(a.key)?.title || a.displayName
+          const tb = nfoMap.get(b.key)?.title || b.displayName
+          return ta.localeCompare(tb)
+        },
+        render: (_: unknown, record: VideoGroup) => {
+          const nfo = nfoMap.get(record.key)
+          const title = nfo?.title || record.displayName
+          return (
+            <span title={title}>
+              {title}
+              {record.partCount > 1 && (
+                <Tag color="cyan" style={{ marginLeft: 6 }}>
+                  {record.partCount} CD
+                </Tag>
+              )}
+            </span>
+          )
+        }
       },
       {
-        title: t('colDuration'),
-        key: 'duration',
-        width: 90,
-        render: (_, record) =>
-          formatDuration(record.totalDuration || record.metadata?.duration || 0),
-        sorter: (a, b) => (a.totalDuration || 0) - (b.totalDuration || 0)
+        title: t('colActors'),
+        key: 'actors',
+        width: actorsColumnWidth,
+        ellipsis: true,
+        onHeaderCell: () => ({
+          resizeWidth: actorsColumnWidth,
+          onResizeWidth: onActorsColumnWidthChange
+        }),
+        render: (_: unknown, record: VideoGroup) => {
+          const nfo = nfoMap.get(record.key)
+          if (!nfo?.actors?.length) return '-'
+          return (
+            <span title={nfo.actors.map((a) => a.name).join(', ')}>
+              {nfo.actors.map((a) => a.name).join(', ')}
+            </span>
+          )
+        },
+        sorter: (a: VideoGroup, b: VideoGroup) => {
+          const aa = nfoMap.get(a.key)?.actors?.map((x) => x.name).join(', ') || ''
+          const bb = nfoMap.get(b.key)?.actors?.map((x) => x.name).join(', ') || ''
+          return aa.localeCompare(bb)
+        }
       },
-      {
-        title: t('colBitrate'),
-        key: 'bitrate',
-        width: 100,
-        render: (_, record) => formatBitrate(record.metadata?.bitrate || 0),
-        sorter: (a, b) => (a.metadata?.bitrate || 0) - (b.metadata?.bitrate || 0)
-      },
-      {
-        title: t('colSize'),
-        key: 'size',
-        width: 90,
-        render: (_, record) => (
-          <span className="file-size">{formatSize(record.totalSize)}</span>
-        ),
-        sorter: (a, b) => a.totalSize - b.totalSize
-      },
-      {
-        title: t('colNfo'),
-        key: 'nfo',
-        width: 70,
-        render: (_, record) =>
-          record.nfoPath ? <Tag color="green">{t('nfoYes')}</Tag> : <Tag color="default">{t('nfoNo')}</Tag>,
-        filters: [
-          { text: t('filterHasNfo'), value: 'yes' },
-          { text: t('filterNoNfo'), value: 'no' }
-        ],
-        onFilter: (value, record) =>
-          value === 'yes' ? !!record.nfoPath : !record.nfoPath
-      }
-    ],
-    [t]
-  )
+      colCodec,
+      colResolution,
+      colDuration,
+      colBitrate,
+      colSize
+    ]
+  }, [t, mode, nfoMap, titleColumnWidth, actorsColumnWidth, onTitleColumnWidthChange, onActorsColumnWidthChange])
 
   /** Columns for the expanded child table (individual CD parts) */
   const childColumns: ColumnsType<VideoFileWithMeta> = useMemo(
@@ -398,12 +510,6 @@ export default function VideoList({
         render: (_, record) => (
           <span className="file-size">{formatSize(record.size)}</span>
         )
-      },
-      {
-        title: t('colNfo'),
-        key: 'nfo',
-        width: 70,
-        render: () => null
       }
     ],
     [t]
@@ -455,6 +561,7 @@ export default function VideoList({
       {viewMode === 'list' ? (
         <div className="video-list-table-wrap">
         <Table<VideoGroup>
+        components={tableComponents}
         columns={columns}
         dataSource={filteredGroups}
         rowKey="key"

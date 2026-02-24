@@ -19,6 +19,8 @@ const zh = {
 
   // Table columns
   colFileName: '文件名',
+  colTitle: '影片名',
+  colActors: '演员',
   colCodec: '编码',
   colResolution: '分辨率',
   colDuration: '时长',
@@ -130,6 +132,7 @@ const zh = {
 
   // Tabs
   tabList: '列表',
+  tabArchive: '归档',
   tabCollections: '合集',
   tabSettings: '设置',
   tabAbout: '关于',

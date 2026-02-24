@@ -89,6 +89,10 @@ export interface AppSettings {
   directories: string[]
   /** UI language */
   language?: 'zh' | 'en' | 'ja'
+  /** Title column width in list view (pixels) */
+  titleColumnWidth?: number
+  /** Actors column width in list view (pixels) */
+  actorsColumnWidth?: number
 }
 
 export const VIDEO_EXTENSIONS = [
