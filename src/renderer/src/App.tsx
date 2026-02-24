@@ -160,6 +160,7 @@ function App(): React.JSX.Element {
     setNfoMap(new Map())
     setLoadingStatus('')
     setScanStats(null)
+    const totalStart = Date.now()
 
     // Remove any stale listeners from a previous interrupted scan
     window.api.removeAllScanListeners()
@@ -296,6 +297,11 @@ function App(): React.JSX.Element {
     if (scanGenRef.current !== gen) return
     setNfoMap(map)
     setLoadingStatus('')
+
+    // Update elapsed to total time (scan + sizes + metadata + NFO)
+    if (scanResult) {
+      setScanStats({ ...scanResult, elapsed: Date.now() - totalStart })
+    }
 
     // Save scan results to cache for next launch
     window.api.saveScanCache(collectedFiles)
