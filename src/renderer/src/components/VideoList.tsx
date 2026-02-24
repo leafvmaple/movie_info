@@ -573,7 +573,7 @@ export default function VideoList({
           showSizeChanger: true,
           pageSizeOptions: ['50', '100', '200', '500']
         }}
-        scroll={{ y: 'calc(100vh - 230px)' }}
+        scroll={{ y: 'calc(100vh - 254px)' }}
         onRow={(record) => ({
           onClick: () => onSelect(record),
           onContextMenu: (e) => {

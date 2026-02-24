@@ -109,6 +109,7 @@ function App(): React.JSX.Element {
   const [appVersion, setAppVersion] = useState('')
   const [titleColumnWidth, setTitleColumnWidth] = useState<number>(250)
   const [actorsColumnWidth, setActorsColumnWidth] = useState<number>(160)
+  const [propertyPanelVisible, setPropertyPanelVisible] = useState(false)
 
   const t = useMemo(() => createT(language), [language])
 
@@ -216,7 +217,6 @@ function App(): React.JSX.Element {
     if (scanGenRef.current !== gen) return
 
     setRawFiles([...collectedFiles])
-    setScanStats(scanResult)
 
     if (collectedFiles.length === 0) {
       message.info(t('noVideosFound'))
@@ -338,6 +338,7 @@ function App(): React.JSX.Element {
   // Handle group selection — load NFO for the group
   const handleSelectGroup = useCallback(async (group: VideoGroup) => {
     setSelectedGroup(group)
+    setPropertyPanelVisible(true)
     setNfoLoading(true)
 
     try {
@@ -449,7 +450,10 @@ function App(): React.JSX.Element {
             { label: t('tabSettings'), value: 'settings', icon: <SettingOutlined /> },
             { label: t('tabAbout'), value: 'about', icon: <InfoCircleOutlined /> }
           ]}
-          onChange={(val) => setActiveTab(val as 'list' | 'archive' | 'collections' | 'settings' | 'about')}
+          onChange={(val) => {
+            setActiveTab(val as 'list' | 'archive' | 'collections' | 'settings' | 'about')
+            setPropertyPanelVisible(false)
+          }}
         />
         <div className="header-actions">
           <Button
@@ -631,16 +635,17 @@ function App(): React.JSX.Element {
             </div>
           )}
         </div>
-        <div className="property-panel">
-          {(activeTab === 'list' || activeTab === 'archive' || activeTab === 'collections') && (
+        {propertyPanelVisible && (activeTab === 'list' || activeTab === 'archive' || activeTab === 'collections') && (
+          <div className="property-panel">
             <PropertyPanel
               group={selectedGroup}
               nfoData={nfoData}
               loading={nfoLoading}
               onSave={handleSaveNfo}
+              onClose={() => setPropertyPanelVisible(false)}
             />
-          )}
-        </div>
+          </div>
+        )}
       </Content>
       <div className="app-status-bar">
         {scanStats && (

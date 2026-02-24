@@ -29,6 +29,7 @@ interface PropertyPanelProps {
   nfoData: NfoData | null
   loading: boolean
   onSave: (data: NfoData) => Promise<void>
+  onClose?: () => void
 }
 
 /** Read-only field display */
@@ -75,7 +76,8 @@ export default function PropertyPanel({
   group,
   nfoData,
   loading,
-  onSave
+  onSave,
+  onClose
 }: PropertyPanelProps): React.JSX.Element {
   const [form] = Form.useForm()
   const [saving, setSaving] = useState(false)
@@ -121,19 +123,31 @@ export default function PropertyPanel({
     }
   }, [nfoData, form])
 
+  const closeButton = onClose ? (
+    <div className="property-panel-header">
+      <Button type="text" icon={<CloseOutlined />} onClick={onClose} size="small" />
+    </div>
+  ) : null
+
   if (!group) {
     return (
-      <div className="panel-placeholder">
-        <Text type="secondary">{t('selectVideo')}</Text>
-      </div>
+      <>
+        {closeButton}
+        <div className="panel-placeholder">
+          <Text type="secondary">{t('selectVideo')}</Text>
+        </div>
+      </>
     )
   }
 
   if (loading) {
     return (
-      <div className="panel-placeholder">
-        <Spin tip={t('loadingNfoTip')} />
-      </div>
+      <>
+        {closeButton}
+        <div className="panel-placeholder">
+          <Spin tip={t('loadingNfoTip')} />
+        </div>
+      </>
     )
   }
 
@@ -223,13 +237,16 @@ export default function PropertyPanel({
               {group.partCount > 1 && ` (${group.partCount} CD)`}
             </Text>
           </div>
-          <Button
-            type="text"
-            icon={<EditOutlined />}
-            onClick={() => setEditing(true)}
-          >
-            {t('edit')}
-          </Button>
+          <Space size={4}>
+            <Button
+              type="text"
+              icon={<EditOutlined />}
+              onClick={() => setEditing(true)}
+            >
+              {t('edit')}
+            </Button>
+            {onClose && <Button type="text" icon={<CloseOutlined />} onClick={onClose} size="small" />}
+          </Space>
         </div>
 
         {posterUri && (
