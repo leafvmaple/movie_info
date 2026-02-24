@@ -1,6 +1,6 @@
 {
   "name": "movie-info",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Video file manager with NFO metadata editing",
   "main": "./out/main/index.js",
   "author": "example.com",
