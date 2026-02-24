@@ -1,3 +1,16 @@
+## v0.3.0 (2026-02-24)
+
+### Changes
+
+- refactor: unify poster cache across VideoList and CollectionView (f120377)
+- feat: add Tools tab with Duplicate Cleaner (c0a1af8)
+- fix(ui): collapsible property panel and layout fixes (e8c7da7)
+- feat(settings): add clear cache button (78b8e49)
+- fix: measure total elapsed time across entire scan pipeline (9b0b50c)
+- feat: rename project to Media Forge and add incremental scan cache (df84c08)
+- perf: optimize remote/network drive scanning performance (0ef10fe)
+- feat: Add Archive tab + refactor list view columns (6fa6c79)
+
 ## v0.2.0 (2026-02-24)
 
 ### Changes
