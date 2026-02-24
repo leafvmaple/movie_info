@@ -88,7 +88,7 @@ export interface AppSettings {
   /** List of directories to scan for videos */
   directories: string[]
   /** UI language */
-  language?: 'zh' | 'en'
+  language?: 'zh' | 'en' | 'ja'
 }
 
 export const VIDEO_EXTENSIONS = [
