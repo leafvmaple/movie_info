@@ -307,34 +307,45 @@ function App(): React.JSX.Element {
       setScanStats({ ...(scanResult as ScanStats), elapsed: Date.now() - totalStart })
     }
 
-    // Save scan results to cache for next launch
+    // Save scan results and NFO cache for next launch
     window.api.saveScanCache(collectedFiles)
+    window.api.saveNfoCache(Array.from(map.entries()))
   }, [ffprobeAvailable, t])
 
   // Load cached scan results on mount, or show empty state
   useEffect(() => {
-    window.api.loadScanCache().then(async (cached) => {
+    Promise.all([
+      window.api.loadScanCache(),
+      window.api.loadNfoCache()
+    ]).then(async ([cached, nfoCached]) => {
       if (cached && cached.length > 0) {
         const files = cached as VideoFileWithMeta[]
         setRawFiles(files)
 
-        // Batch-load NFO data for search
-        const groups = groupVideos(files)
-        const map = new Map<string, NfoData>()
-        const groupsWithNfo = groups.filter((g) => g.nfoPath)
-        const NFO_BATCH = 50
-        for (let i = 0; i < groupsWithNfo.length; i += NFO_BATCH) {
-          const batch = groupsWithNfo.slice(i, i + NFO_BATCH)
-          const results = await Promise.allSettled(
-            batch.map((g) => window.api.readNfo(g.nfoPath!))
-          )
-          results.forEach((result, idx) => {
-            if (result.status === 'fulfilled' && result.value) {
-              map.set(batch[idx].key, result.value as NfoData)
-            }
-          })
+        // Use NFO cache if available, otherwise fall back to re-reading
+        if (nfoCached && nfoCached.length > 0) {
+          setNfoMap(new Map(nfoCached as [string, NfoData][]))
+        } else {
+          // Batch-load NFO data for search
+          const groups = groupVideos(files)
+          const map = new Map<string, NfoData>()
+          const groupsWithNfo = groups.filter((g) => g.nfoPath)
+          const NFO_BATCH = 50
+          for (let i = 0; i < groupsWithNfo.length; i += NFO_BATCH) {
+            const batch = groupsWithNfo.slice(i, i + NFO_BATCH)
+            const results = await Promise.allSettled(
+              batch.map((g) => window.api.readNfo(g.nfoPath!))
+            )
+            results.forEach((result, idx) => {
+              if (result.status === 'fulfilled' && result.value) {
+                map.set(batch[idx].key, result.value as NfoData)
+              }
+            })
+          }
+          setNfoMap(map)
+          // Save for next launch
+          window.api.saveNfoCache(Array.from(map.entries()))
         }
-        setNfoMap(map)
       }
     })
   }, [])
@@ -391,10 +402,11 @@ function App(): React.JSX.Element {
             setSelectedGroup((prev) => (prev ? { ...prev, nfoPath } : prev))
           }
 
-          // Update nfoMap with saved data
+          // Update nfoMap with saved data and persist to cache
           setNfoMap((prev) => {
             const next = new Map(prev)
             next.set(selectedGroup.key, data)
+            window.api.saveNfoCache(Array.from(next.entries()))
             return next
           })
 

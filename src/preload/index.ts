@@ -37,6 +37,11 @@ const api = {
   // Scan cache
   loadScanCache: (): Promise<unknown[] | null> => ipcRenderer.invoke('load-scan-cache'),
   saveScanCache: (files: unknown[]): Promise<void> => ipcRenderer.invoke('save-scan-cache', files),
+
+  // NFO cache
+  loadNfoCache: (): Promise<[string, unknown][] | null> => ipcRenderer.invoke('load-nfo-cache'),
+  saveNfoCache: (entries: [string, unknown][]): Promise<void> => ipcRenderer.invoke('save-nfo-cache', entries),
+
   clearCache: (): Promise<{ success: boolean }> => ipcRenderer.invoke('clear-cache'),
 
   // Settings

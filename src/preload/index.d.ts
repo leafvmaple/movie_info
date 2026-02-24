@@ -20,6 +20,11 @@ interface CustomAPI {
   // Scan cache
   loadScanCache: () => Promise<VideoFile[] | null>
   saveScanCache: (files: VideoFile[]) => Promise<void>
+
+  // NFO cache
+  loadNfoCache: () => Promise<[string, NfoData][] | null>
+  saveNfoCache: (entries: [string, NfoData][]) => Promise<void>
+
   clearCache: () => Promise<{ success: boolean }>
 
   // Settings

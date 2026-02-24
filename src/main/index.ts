@@ -1,7 +1,8 @@
-import { app, shell, BrowserWindow, ipcMain, dialog } from 'electron'
+import { app, shell, BrowserWindow, ipcMain, dialog, nativeImage } from 'electron'
 import { join, extname, basename } from 'path'
-import { readFile, rm } from 'fs/promises'
+import { readFile, rm, mkdir, writeFile as fsWriteFile } from 'fs/promises'
 import { existsSync, readFileSync, writeFileSync } from 'fs'
+import { createHash } from 'crypto'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 
@@ -14,6 +15,11 @@ import { NfoData, AppSettings } from '../common/types'
 
 // Directory mtime cache for incremental scanning
 const dirCacheFile = join(app.getPath('userData'), 'dir-cache.json')
+const nfoCacheFile = join(app.getPath('userData'), 'nfo-cache.json')
+const posterCacheDir = join(app.getPath('userData'), 'poster-cache')
+
+/** Thumbnail width for poster cache (2x display size of 160px grid cards) */
+const THUMB_WIDTH = 320
 
 function loadDirCache(): DirCache {
   try {
@@ -160,13 +166,39 @@ function registerIpcHandlers(): void {
     }
   })
 
+  // NFO cache — save/load the whole nfoMap so we skip re-parsing on startup
+  ipcMain.handle('load-nfo-cache', () => {
+    try {
+      if (existsSync(nfoCacheFile)) {
+        const raw = readFileSync(nfoCacheFile, 'utf-8')
+        return JSON.parse(raw) // Array of [key, NfoData] entries
+      }
+    } catch {
+      // corrupted
+    }
+    return null
+  })
+
+  ipcMain.handle('save-nfo-cache', (_event, entries: [string, NfoData][]) => {
+    try {
+      writeFileSync(nfoCacheFile, JSON.stringify(entries), 'utf-8')
+    } catch (err) {
+      console.error('Error saving NFO cache:', err)
+    }
+  })
+
   ipcMain.handle('clear-cache', async () => {
     const removed: string[] = []
-    for (const f of [cacheFile, dirCacheFile]) {
+    for (const f of [cacheFile, dirCacheFile, nfoCacheFile]) {
       if (existsSync(f)) {
         await rm(f)
         removed.push(f)
       }
+    }
+    // Also clear poster thumbnail cache
+    if (existsSync(posterCacheDir)) {
+      await rm(posterCacheDir, { recursive: true, force: true })
+      removed.push(posterCacheDir)
     }
     return { success: true, removed }
   })
@@ -225,8 +257,20 @@ function registerIpcHandlers(): void {
     return results
   })
 
-  // Find poster image for a video directory
+  // Find poster image for a video directory — returns resized thumbnail cached to disk
   ipcMain.handle('find-poster', async (_event, dirPath: string, baseName: string) => {
+    // Check disk thumbnail cache first
+    const cacheKey = createHash('md5').update(`${dirPath}|||${baseName}`).digest('hex')
+    const thumbPath = join(posterCacheDir, `${cacheKey}.jpg`)
+    if (existsSync(thumbPath)) {
+      try {
+        const buf = await readFile(thumbPath)
+        return `data:image/jpeg;base64,${buf.toString('base64')}`
+      } catch {
+        // fall through to regenerate
+      }
+    }
+
     const IMAGE_EXTS = ['.jpg', '.jpeg', '.png', '.webp']
     const candidates = [
       ...IMAGE_EXTS.map((ext) => `${baseName}-poster${ext}`),
@@ -240,9 +284,23 @@ function registerIpcHandlers(): void {
       if (existsSync(filePath)) {
         try {
           const buf = await readFile(filePath)
-          const ext = extname(name).slice(1).toLowerCase()
-          const mime = ext === 'jpg' ? 'image/jpeg' : `image/${ext}`
-          return `data:${mime};base64,${buf.toString('base64')}`
+          // Resize to thumbnail using Electron nativeImage
+          const img = nativeImage.createFromBuffer(buf)
+          if (img.isEmpty()) continue
+          const size = img.getSize()
+          // Only resize if wider than target
+          const resized = size.width > THUMB_WIDTH
+            ? img.resize({ width: THUMB_WIDTH, quality: 'good' })
+            : img
+          const jpegBuf = resized.toJPEG(80)
+          // Save to disk cache
+          try {
+            await mkdir(posterCacheDir, { recursive: true })
+            await fsWriteFile(thumbPath, jpegBuf)
+          } catch {
+            // cache write failure is non-fatal
+          }
+          return `data:image/jpeg;base64,${jpegBuf.toString('base64')}`
         } catch {
           continue
         }
