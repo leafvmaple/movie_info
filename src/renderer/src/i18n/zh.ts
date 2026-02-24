@@ -1,14 +1,17 @@
 const zh = {
   // App header
-  appTitle: 'Movie Info Manager',
+  appTitle: 'Media Forge',
   scan: '扫描',
   settings: '设置',
 
   // Scanning status
   scanning: '正在扫描... 已找到 {count} 个视频文件',
   loadingMetadata: '正在读取视频信息... {count} 部影片',
+  loadingSizes: '正在获取文件大小... {count} 部影片',
   loadingNfo: '正在加载 NFO 数据... {count} 部影片',
   totalMovies: '共 {count} 部影片（{files} 个文件）',
+  scanTime: '扫描耗时 {time}',
+  scanCache: '缓存命中 {cached}/{total} 目录',
   searchResult: '找到 {found} / {total} 部影片',
   noVideosFound: '未找到视频文件，请先在设置中添加扫描目录',
   scanFailed: '扫描视频文件失败: ',

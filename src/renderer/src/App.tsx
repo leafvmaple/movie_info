@@ -16,7 +16,7 @@ import SettingsPanel from './components/SettingsModal'
 import CollectionView from './components/CollectionView'
 import { I18nProvider, createT } from './i18n'
 import type { Language } from './i18n'
-import type { VideoFile, VideoMetadata, NfoData } from '../../common/types'
+import type { VideoFile, VideoMetadata, NfoData, ScanStats } from '../../common/types'
 
 const { Header, Content } = Layout
 const { Title, Paragraph, Text, Link } = Typography
@@ -102,6 +102,7 @@ function App(): React.JSX.Element {
   const [activeTab, setActiveTab] = useState<'list' | 'archive' | 'collections' | 'settings' | 'about'>('list')
   const [loading, setLoading] = useState(false)
   const [loadingStatus, setLoadingStatus] = useState('')
+  const [scanStats, setScanStats] = useState<ScanStats | null>(null)
   const [nfoLoading, setNfoLoading] = useState(false)
   const [ffprobeAvailable, setFfprobeAvailable] = useState(true)
   const [language, setLanguage] = useState<Language>('zh')
@@ -158,6 +159,7 @@ function App(): React.JSX.Element {
     setRawFiles([])
     setNfoMap(new Map())
     setLoadingStatus('')
+    setScanStats(null)
 
     // Remove any stale listeners from a previous interrupted scan
     window.api.removeAllScanListeners()
@@ -184,8 +186,10 @@ function App(): React.JSX.Element {
 
     // Wait for scan completion or cancellation (gen change)
     let pollInterval: ReturnType<typeof setInterval> | null = null
+    let scanResult: ScanStats | null = null
     await new Promise<void>((resolve) => {
-      const removeComplete = window.api.onScanComplete(() => {
+      const removeComplete = window.api.onScanComplete((stats) => {
+        scanResult = (stats as ScanStats) ?? null
         removeComplete()
         if (pollInterval) clearInterval(pollInterval)
         resolve()
@@ -211,6 +215,7 @@ function App(): React.JSX.Element {
     if (scanGenRef.current !== gen) return
 
     setRawFiles([...collectedFiles])
+    setScanStats(scanResult)
 
     if (collectedFiles.length === 0) {
       message.info(t('noVideosFound'))
@@ -219,6 +224,27 @@ function App(): React.JSX.Element {
     }
 
     setLoading(false)
+
+    // Load file sizes in background (deferred from scan for network performance)
+    {
+      setLoadingStatus('sizes')
+      const SIZE_BATCH = 200
+      const allPaths = collectedFiles.map((f) => f.path)
+      for (let i = 0; i < allPaths.length; i += SIZE_BATCH) {
+        if (scanGenRef.current !== gen) return
+        const batchPaths = allPaths.slice(i, i + SIZE_BATCH)
+        const sizeResults = await window.api.getFileSizes(batchPaths)
+        if (scanGenRef.current !== gen) return
+        const sizeMap = new Map(sizeResults.map((r) => [r.path, r.size]))
+        for (let j = i; j < i + batchPaths.length; j++) {
+          const s = sizeMap.get(collectedFiles[j].path)
+          if (s !== undefined) collectedFiles[j] = { ...collectedFiles[j], size: s }
+        }
+        setRawFiles([...collectedFiles])
+      }
+    }
+
+    if (scanGenRef.current !== gen) return
 
     // Fetch metadata in background (non-blocking) if ffprobe is available
     if (ffprobeAvailable) {
@@ -546,9 +572,9 @@ function App(): React.JSX.Element {
                   <Text>MIT</Text>
 
                   <Text type="secondary">{t('aboutHomepage')}</Text>
-                  <Link href="https://github.com/leafvmaple/movie_info" target="_blank">
+                  <Link href="https://github.com/leafvmaple/media-forge" target="_blank">
                     <GithubOutlined style={{ marginRight: 4 }} />
-                    github.com/leafvmaple/movie_info
+                    github.com/leafvmaple/media-forge
                   </Link>
                 </div>
               </div>
@@ -591,7 +617,7 @@ function App(): React.JSX.Element {
                 <Paragraph type="secondary" style={{ marginBottom: 8 }}>
                   {t('aboutFeedbackDesc')}
                 </Paragraph>
-                <Link href="https://github.com/leafvmaple/movie_info/issues" target="_blank">
+                <Link href="https://github.com/leafvmaple/media-forge/issues" target="_blank">
                   <GithubOutlined style={{ marginRight: 4 }} />
                   GitHub Issues
                 </Link>
@@ -610,6 +636,21 @@ function App(): React.JSX.Element {
           )}
         </div>
       </Content>
+      <div className="app-status-bar">
+        {scanStats && (
+          <span>
+            {t('scanTime', { time: scanStats.elapsed < 1000 ? `${scanStats.elapsed}ms` : `${(scanStats.elapsed / 1000).toFixed(1)}s` })}
+            {(scanStats.cacheHits > 0 || scanStats.readdirCount > 0) && (
+              <span style={{ marginLeft: 12 }}>
+                {t('scanCache', {
+                  cached: scanStats.cacheHits,
+                  total: scanStats.cacheHits + scanStats.readdirCount
+                })}
+              </span>
+            )}
+          </span>
+        )}
+      </div>
     </Layout>
     </ConfigProvider>
     </I18nProvider>

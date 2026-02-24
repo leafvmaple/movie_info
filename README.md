@@ -1,6 +1,6 @@
-# Movie Info Manager
+# Media Forge
 
-A desktop application for managing video files and editing NFO metadata, built with Electron + React + TypeScript.
+A desktop video library manager — NFO metadata editing, dedup, batch operations. Built with Electron + React + TypeScript.
 
 ## Features
 

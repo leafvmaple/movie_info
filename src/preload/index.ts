@@ -15,11 +15,13 @@ const api = {
     ipcRenderer.on('video-found', handler)
     return () => ipcRenderer.removeListener('video-found', handler)
   },
-  onScanComplete: (callback: () => void): (() => void) => {
-    const handler = (): void => callback()
+  onScanComplete: (callback: (stats?: unknown) => void): (() => void) => {
+    const handler = (_event: unknown, stats?: unknown): void => callback(stats)
     ipcRenderer.on('scan-complete', handler)
     return () => ipcRenderer.removeListener('scan-complete', handler)
   },
+  getFileSizes: (paths: string[]): Promise<{ path: string; size: number }[]> =>
+    ipcRenderer.invoke('get-file-sizes', paths),
   getVideoMetadata: (filePath: string): Promise<unknown> =>
     ipcRenderer.invoke('get-video-metadata', filePath),
   checkFfprobe: (): Promise<boolean> => ipcRenderer.invoke('check-ffprobe'),

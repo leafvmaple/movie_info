@@ -5,11 +5,35 @@ import { existsSync, readFileSync, writeFileSync } from 'fs'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 
-import { scanDirectories, resolveUncPath } from './services/scanner'
+import { scanDirectories, resolveUncPath, getFileSizes } from './services/scanner'
+import type { DirCache } from './services/scanner'
 import { getVideoMetadata, checkFfprobe } from './services/ffprobe'
 import { readNfo, saveNfo, createEmptyNfo } from './services/nfo'
 import { getSettings, saveSettings, addDirectory, removeDirectory } from './services/settings'
 import { NfoData, AppSettings } from '../common/types'
+
+// Directory mtime cache for incremental scanning
+const dirCacheFile = join(app.getPath('userData'), 'dir-cache.json')
+
+function loadDirCache(): DirCache {
+  try {
+    if (existsSync(dirCacheFile)) {
+      const raw = readFileSync(dirCacheFile, 'utf-8')
+      return new Map(JSON.parse(raw))
+    }
+  } catch {
+    // corrupted cache — start fresh
+  }
+  return new Map()
+}
+
+function saveDirCache(cache: DirCache): void {
+  try {
+    writeFileSync(dirCacheFile, JSON.stringify(Array.from(cache.entries())), 'utf-8')
+  } catch (err) {
+    console.error('Error saving dir cache:', err)
+  }
+}
 
 function createWindow(): void {
   const mainWindow = new BrowserWindow({
@@ -49,10 +73,17 @@ function registerIpcHandlers(): void {
   ipcMain.handle('scan-videos', async (event) => {
     const settings = getSettings()
     const sender = event.sender
-    await scanDirectories(settings.directories, (file) => {
+    const dirCache = loadDirCache()
+    const stats = await scanDirectories(settings.directories, (file) => {
       sender.send('video-found', file)
-    })
-    sender.send('scan-complete')
+    }, dirCache)
+    saveDirCache(dirCache)
+    sender.send('scan-complete', stats)
+  })
+
+  // Get file sizes in background (deferred from scan for network performance)
+  ipcMain.handle('get-file-sizes', async (_event, paths: string[]) => {
+    return getFileSizes(paths)
   })
 
   // Get video metadata via ffprobe
@@ -211,7 +242,7 @@ function registerIpcHandlers(): void {
 // === App Lifecycle ===
 
 app.whenReady().then(() => {
-  electronApp.setAppUserModelId('com.movie-info')
+  electronApp.setAppUserModelId('com.media-forge')
 
   app.on('browser-window-created', (_, window) => {
     optimizer.watchWindowShortcuts(window)

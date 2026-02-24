@@ -2,15 +2,18 @@ import type { TranslationKeys } from './zh'
 
 const ja: Record<TranslationKeys, string> = {
   // App header
-  appTitle: 'Movie Info Manager',
+  appTitle: 'Media Forge',
   scan: 'スキャン',
   settings: '設定',
 
   // Scanning status
   scanning: 'スキャン中... {count} 件の動画ファイルが見つかりました',
   loadingMetadata: '動画情報を読み込み中... {count} 本',
+  loadingSizes: 'ファイルサイズを取得中... {count} 本',
   loadingNfo: 'NFOデータを読み込み中... {count} 本',
   totalMovies: '合計 {count} 本（{files} ファイル）',
+  scanTime: 'スキャン {time}',
+  scanCache: 'キャッシュ {cached}/{total} ディレクトリ',
   searchResult: '{found} / {total} 本が見つかりました',
   noVideosFound: '動画ファイルが見つかりません。設定でスキャンディレクトリを追加してください。',
   scanFailed: 'スキャンに失敗しました: ',

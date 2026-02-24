@@ -1,12 +1,13 @@
 import { ElectronAPI } from '@electron-toolkit/preload'
-import type { VideoFile, VideoMetadata, NfoData, AppSettings } from '../common/types'
+import type { VideoFile, VideoMetadata, NfoData, AppSettings, ScanStats } from '../common/types'
 
 interface CustomAPI {
   // Video scanning
   scanVideos: () => Promise<void>
   removeAllScanListeners: () => void
   onVideoFound: (callback: (file: VideoFile) => void) => () => void
-  onScanComplete: (callback: () => void) => () => void
+  onScanComplete: (callback: (stats?: ScanStats) => void) => () => void
+  getFileSizes: (paths: string[]) => Promise<{ path: string; size: number }[]>
   getVideoMetadata: (filePath: string) => Promise<VideoMetadata | null>
   checkFfprobe: () => Promise<boolean>
 

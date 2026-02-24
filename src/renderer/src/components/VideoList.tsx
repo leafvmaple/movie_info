@@ -546,7 +546,9 @@ export default function VideoList({
               <Spin indicator={<LoadingOutlined spin />} size="small" />{' '}
               {loadingStatus === 'metadata'
                 ? t('loadingMetadata', { count: groups.length })
-                : t('loadingNfo', { count: groups.length })}
+                : loadingStatus === 'sizes'
+                  ? t('loadingSizes', { count: groups.length })
+                  : t('loadingNfo', { count: groups.length })}
             </>
           ) : (
             <>

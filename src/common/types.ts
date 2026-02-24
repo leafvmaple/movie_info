@@ -116,3 +116,17 @@ export const VIDEO_EXTENSIONS = [
   '.rmvb',
   '.rm'
 ]
+
+/** Statistics returned after a scan completes */
+export interface ScanStats {
+  /** Total scan time in milliseconds */
+  elapsed: number
+  /** Number of directories that required readdir (cache miss) */
+  readdirCount: number
+  /** Number of directories served from cache (cache hit) */
+  cacheHits: number
+  /** Total video files found */
+  videoCount: number
+  /** Total subdirectories traversed */
+  dirCount: number
+}

@@ -50,9 +50,23 @@ body,
 
 .main-content {
   display: flex;
-  height: calc(100vh - 64px);
+  height: calc(100vh - 64px - 24px);
   overflow: hidden;
   background: #0f0f1a;
+}
+
+/* Bottom status bar */
+.app-status-bar {
+  height: 24px;
+  line-height: 24px;
+  padding: 0 12px;
+  background: #0a0a18;
+  border-top: 1px solid #2a2a3e;
+  color: #666;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
 }
 
 .video-list-panel {
