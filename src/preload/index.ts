@@ -59,7 +59,9 @@ const api = {
   openFile: (filePath: string): Promise<void> => ipcRenderer.invoke('open-file', filePath),
   showInFolder: (filePath: string): Promise<void> => ipcRenderer.invoke('show-in-folder', filePath),
   deleteFolder: (folderPath: string): Promise<{ success: boolean; error?: string }> =>
-    ipcRenderer.invoke('delete-folder', folderPath)
+    ipcRenderer.invoke('delete-folder', folderPath),
+  deleteFiles: (filePaths: string[]): Promise<{ path: string; success: boolean; error?: string }[]> =>
+    ipcRenderer.invoke('delete-files', filePaths)
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

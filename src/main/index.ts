@@ -212,6 +212,19 @@ function registerIpcHandlers(): void {
     }
   })
 
+  ipcMain.handle('delete-files', async (_event, filePaths: string[]) => {
+    const results: { path: string; success: boolean; error?: string }[] = []
+    for (const filePath of filePaths) {
+      try {
+        await rm(filePath)
+        results.push({ path: filePath, success: true })
+      } catch (err) {
+        results.push({ path: filePath, success: false, error: String(err) })
+      }
+    }
+    return results
+  })
+
   // Find poster image for a video directory
   ipcMain.handle('find-poster', async (_event, dirPath: string, baseName: string) => {
     const IMAGE_EXTS = ['.jpg', '.jpeg', '.png', '.webp']

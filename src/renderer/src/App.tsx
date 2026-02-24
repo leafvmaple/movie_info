@@ -8,12 +8,14 @@ import {
   GithubOutlined,
   MailOutlined,
   FolderOutlined,
-  InboxOutlined
+  InboxOutlined,
+  ToolOutlined
 } from '@ant-design/icons'
 import VideoList from './components/VideoList'
 import PropertyPanel from './components/PropertyPanel'
 import SettingsPanel from './components/SettingsModal'
 import CollectionView from './components/CollectionView'
+import ToolsPanel from './components/ToolsPanel'
 import { I18nProvider, createT } from './i18n'
 import type { Language } from './i18n'
 import type { VideoFile, VideoMetadata, NfoData, ScanStats } from '../../common/types'
@@ -99,7 +101,7 @@ function App(): React.JSX.Element {
   const [selectedGroup, setSelectedGroup] = useState<VideoGroup | null>(null)
   const [nfoData, setNfoData] = useState<NfoData | null>(null)
   const [nfoMap, setNfoMap] = useState<Map<string, NfoData>>(new Map())
-  const [activeTab, setActiveTab] = useState<'list' | 'archive' | 'collections' | 'settings' | 'about'>('list')
+  const [activeTab, setActiveTab] = useState<'list' | 'archive' | 'collections' | 'tools' | 'settings' | 'about'>('list')
   const [loading, setLoading] = useState(false)
   const [loadingStatus, setLoadingStatus] = useState('')
   const [scanStats, setScanStats] = useState<ScanStats | null>(null)
@@ -447,11 +449,12 @@ function App(): React.JSX.Element {
             { label: t('tabList'), value: 'list', icon: <UnorderedListOutlined /> },
             { label: t('tabArchive'), value: 'archive', icon: <InboxOutlined /> },
             { label: t('tabCollections'), value: 'collections', icon: <FolderOutlined /> },
+            { label: t('tabTools'), value: 'tools', icon: <ToolOutlined /> },
             { label: t('tabSettings'), value: 'settings', icon: <SettingOutlined /> },
             { label: t('tabAbout'), value: 'about', icon: <InfoCircleOutlined /> }
           ]}
           onChange={(val) => {
-            setActiveTab(val as 'list' | 'archive' | 'collections' | 'settings' | 'about')
+            setActiveTab(val as 'list' | 'archive' | 'collections' | 'tools' | 'settings' | 'about')
             setPropertyPanelVisible(false)
           }}
         />
@@ -546,6 +549,15 @@ function App(): React.JSX.Element {
                 if (selectedGroup?.key === groupKey) {
                   setSelectedGroup(null)
                 }
+              }}
+            />
+          )}
+
+          {activeTab === 'tools' && (
+            <ToolsPanel
+              files={rawFiles}
+              onFilesDeleted={(deletedPaths) => {
+                setRawFiles((prev) => prev.filter((f) => !deletedPaths.includes(f.path)))
               }}
             />
           )}

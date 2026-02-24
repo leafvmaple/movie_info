@@ -174,7 +174,27 @@ const ja: Record<TranslationKeys, string> = {
   collectionMovieCount: '{count} 本',
   collectionBack: 'コレクション一覧に戻る',
   collectionEmpty: 'コレクションがまだありません。動画をスキャンし、NFOファイルに俳優やスタジオの情報が含まれていることを確認してください。',
-  collectionSearch: 'コレクションを検索...'
+  collectionSearch: 'コレクションを検索...',
+
+  // Tools
+  tabTools: 'ツール',
+  toolDuplicateFinder: '重複ファイル整理',
+  toolDuplicateFinderDesc: '同名の動画ファイルを検出し、解像度やコーデックを比較して低品質のコピーを一括削除',
+  toolNoDuplicates: '重複ファイルは見つかりませんでした',
+  toolDupGroups: '{count} グループの重複ファイルが見つかりました',
+  toolDupSelectLowRes: '低解像度を選択',
+  toolDupSelectOldCodec: '古いコーデックを選択',
+  toolDupSelectSmaller: 'サイズの小さいものを選択',
+  toolDupClearSelection: '選択をクリア',
+  toolDupDeleteSelected: '選択したファイルを削除',
+  toolDupDeleteConfirmTitle: '一括削除の確認',
+  toolDupDeleteConfirmContent: '{count} 個のファイルを削除してもよろしいですか？\n\nこの操作は元に戻せません！',
+  toolDupDeleteSuccess: '{count} 個のファイルを削除しました',
+  toolDupDeleteFailed: '一部のファイルの削除に失敗しました',
+  toolDupPath: 'パス',
+  toolDupNeedScan: '先に動画をスキャンしてください',
+  toolDupSelected: '{count} 個のファイルを選択中',
+  toolBack: '戻る'
 }
 
 export default ja

@@ -174,7 +174,27 @@ const en: Record<TranslationKeys, string> = {
   collectionMovieCount: '{count} movies',
   collectionBack: 'Back to collections',
   collectionEmpty: 'No collections yet. Scan videos and ensure NFO files contain actor or studio information.',
-  collectionSearch: 'Search collections...'
+  collectionSearch: 'Search collections...',
+
+  // Tools
+  tabTools: 'Tools',
+  toolDuplicateFinder: 'Duplicate Cleaner',
+  toolDuplicateFinderDesc: 'Find duplicate video files by name, compare resolution and codec, batch remove low-quality copies',
+  toolNoDuplicates: 'No duplicates found',
+  toolDupGroups: 'Found {count} duplicate groups',
+  toolDupSelectLowRes: 'Select lower resolution',
+  toolDupSelectOldCodec: 'Select older codec',
+  toolDupSelectSmaller: 'Select smaller files',
+  toolDupClearSelection: 'Clear selection',
+  toolDupDeleteSelected: 'Delete selected',
+  toolDupDeleteConfirmTitle: 'Confirm Batch Delete',
+  toolDupDeleteConfirmContent: 'Are you sure you want to delete {count} file(s)?\n\nThis action cannot be undone!',
+  toolDupDeleteSuccess: 'Deleted {count} file(s)',
+  toolDupDeleteFailed: 'Some files failed to delete',
+  toolDupPath: 'Path',
+  toolDupNeedScan: 'Please scan videos first',
+  toolDupSelected: '{count} file(s) selected',
+  toolBack: 'Back'
 }
 
 export default en

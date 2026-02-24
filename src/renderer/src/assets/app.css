@@ -699,3 +699,116 @@ body,
 .readonly-actor {
   font-size: 13px;
 }
+
+/* ── Tools Panel ─────────────────────────────────────────────────────────── */
+
+.tools-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+  padding: 8px 0;
+}
+
+.tool-card {
+  background: #1a1a2e !important;
+  border-color: #2a2a3e !important;
+}
+
+.tool-card:hover {
+  border-color: #1668dc !important;
+}
+
+.tool-card .ant-card-body {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px !important;
+}
+
+.tool-card-icon {
+  flex-shrink: 0;
+}
+
+.tool-card-content {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ── Duplicate Finder ────────────────────────────────────────────────────── */
+
+.dup-group {
+  margin-bottom: 16px;
+  border: 1px solid #2a2a3e;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.dup-group-header {
+  padding: 8px 12px;
+  background: #161630;
+  border-bottom: 1px solid #2a2a3e;
+}
+
+.dup-group-files {
+  display: flex;
+  flex-direction: column;
+}
+
+.dup-file-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-bottom: 1px solid #1e1e36;
+  transition: background 0.15s;
+}
+
+.dup-file-row:last-child {
+  border-bottom: none;
+}
+
+.dup-file-row:hover {
+  background: #1a1a36;
+}
+
+.dup-file-selected {
+  background: #2a1a1a !important;
+}
+
+.dup-file-info {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.dup-file-name {
+  font-size: 13px;
+  color: #e0e0e0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dup-file-path {
+  font-size: 11px;
+  color: #666;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-family: monospace;
+}
+
+.dup-file-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.dup-meta-item {
+  font-size: 12px;
+  color: #999;
+  white-space: nowrap;
+  min-width: 60px;
+  text-align: right;
+}

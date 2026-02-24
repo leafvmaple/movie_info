@@ -39,6 +39,7 @@ interface CustomAPI {
   openFile: (filePath: string) => Promise<void>
   showInFolder: (filePath: string) => Promise<void>
   deleteFolder: (folderPath: string) => Promise<{ success: boolean; error?: string }>
+  deleteFiles: (filePaths: string[]) => Promise<{ path: string; success: boolean; error?: string }[]>
 }
 
 declare global {

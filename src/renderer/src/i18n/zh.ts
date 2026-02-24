@@ -172,7 +172,27 @@ const zh = {
   collectionMovieCount: '{count} 部影片',
   collectionBack: '返回合集列表',
   collectionEmpty: '暂无合集数据，请先扫描视频文件并确保 NFO 文件包含演员或制片公司信息。',
-  collectionSearch: '搜索合集...'
+  collectionSearch: '搜索合集...',
+
+  // Tools
+  tabTools: '小工具',
+  toolDuplicateFinder: '重复文件清理',
+  toolDuplicateFinderDesc: '查找同名视频文件，比较分辨率和编码格式，批量清理低质量副本',
+  toolNoDuplicates: '未发现重复文件',
+  toolDupGroups: '发现 {count} 组重复文件',
+  toolDupSelectLowRes: '选中分辨率低的',
+  toolDupSelectOldCodec: '选中编码格式旧的',
+  toolDupSelectSmaller: '选中文件体积小的',
+  toolDupClearSelection: '清除选中',
+  toolDupDeleteSelected: '删除选中文件',
+  toolDupDeleteConfirmTitle: '确认批量删除',
+  toolDupDeleteConfirmContent: '确定要删除以下 {count} 个文件吗？\n\n此操作不可恢复！',
+  toolDupDeleteSuccess: '已删除 {count} 个文件',
+  toolDupDeleteFailed: '部分文件删除失败',
+  toolDupPath: '路径',
+  toolDupNeedScan: '请先扫描视频文件',
+  toolDupSelected: '已选中 {count} 个文件',
+  toolBack: '返回'
 } as const
 
 export type TranslationKeys = keyof typeof zh
