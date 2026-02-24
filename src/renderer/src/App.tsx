@@ -6,11 +6,13 @@ import {
   SettingOutlined,
   InfoCircleOutlined,
   GithubOutlined,
-  MailOutlined
+  MailOutlined,
+  FolderOutlined
 } from '@ant-design/icons'
 import VideoList from './components/VideoList'
 import PropertyPanel from './components/PropertyPanel'
 import SettingsPanel from './components/SettingsModal'
+import CollectionView from './components/CollectionView'
 import { I18nProvider, createT } from './i18n'
 import type { Language } from './i18n'
 import type { VideoFile, VideoMetadata, NfoData } from '../../common/types'
@@ -96,7 +98,7 @@ function App(): React.JSX.Element {
   const [selectedGroup, setSelectedGroup] = useState<VideoGroup | null>(null)
   const [nfoData, setNfoData] = useState<NfoData | null>(null)
   const [nfoMap, setNfoMap] = useState<Map<string, NfoData>>(new Map())
-  const [activeTab, setActiveTab] = useState<'list' | 'settings' | 'about'>('list')
+  const [activeTab, setActiveTab] = useState<'list' | 'collections' | 'settings' | 'about'>('list')
   const [loading, setLoading] = useState(false)
   const [loadingStatus, setLoadingStatus] = useState('')
   const [nfoLoading, setNfoLoading] = useState(false)
@@ -397,10 +399,11 @@ function App(): React.JSX.Element {
           value={activeTab}
           options={[
             { label: t('tabList'), value: 'list', icon: <UnorderedListOutlined /> },
+            { label: t('tabCollections'), value: 'collections', icon: <FolderOutlined /> },
             { label: t('tabSettings'), value: 'settings', icon: <SettingOutlined /> },
             { label: t('tabAbout'), value: 'about', icon: <InfoCircleOutlined /> }
           ]}
-          onChange={(val) => setActiveTab(val as 'list' | 'settings' | 'about')}
+          onChange={(val) => setActiveTab(val as 'list' | 'collections' | 'settings' | 'about')}
         />
         <div className="header-actions">
           <Button
@@ -424,6 +427,26 @@ function App(): React.JSX.Element {
               loading={loading}
               loadingStatus={loadingStatus}
               rawFileCount={rawFiles.length}
+              onDeleteGroup={(groupKey) => {
+                setRawFiles((prev) => {
+                  const group = videoGroups.find((g) => g.key === groupKey)
+                  if (!group) return prev
+                  const pathsToRemove = new Set(group.parts.map((p) => p.path))
+                  return prev.filter((f) => !pathsToRemove.has(f.path))
+                })
+                if (selectedGroup?.key === groupKey) {
+                  setSelectedGroup(null)
+                }
+              }}
+            />
+          )}
+
+          {activeTab === 'collections' && (
+            <CollectionView
+              groups={videoGroups}
+              nfoMap={nfoMap}
+              selectedGroup={selectedGroup}
+              onSelect={handleSelectGroup}
               onDeleteGroup={(groupKey) => {
                 setRawFiles((prev) => {
                   const group = videoGroups.find((g) => g.key === groupKey)
@@ -524,7 +547,7 @@ function App(): React.JSX.Element {
           )}
         </div>
         <div className="property-panel">
-          {activeTab === 'list' && (
+          {(activeTab === 'list' || activeTab === 'collections') && (
             <PropertyPanel
               group={selectedGroup}
               nfoData={nfoData}

@@ -132,6 +132,7 @@ const ja: Record<TranslationKeys, string> = {
 
   // Tabs
   tabList: 'リスト',
+  tabCollections: 'コレクション',
   tabSettings: '設定',
   tabAbout: 'について',
 
@@ -156,7 +157,15 @@ const ja: Record<TranslationKeys, string> = {
   aboutFeedbackDesc: '問題や機能のご要望がある場合は、GitHub Issues からお知らせください。',
   aboutChangelog: '更新履歴',
   aboutChangelogV011: 'Windows ビルドエラーを修正',
-  aboutChangelogV010: 'プロジェクト初回リリース'
+  aboutChangelogV010: 'プロジェクト初回リリース',
+
+  // Collections
+  collectionActors: '俳優',
+  collectionStudios: 'スタジオ',
+  collectionMovieCount: '{count} 本',
+  collectionBack: 'コレクション一覧に戻る',
+  collectionEmpty: 'コレクションがまだありません。動画をスキャンし、NFOファイルに俳優やスタジオの情報が含まれていることを確認してください。',
+  collectionSearch: 'コレクションを検索...'
 }
 
 export default ja

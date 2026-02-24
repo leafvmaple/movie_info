@@ -130,6 +130,7 @@ const zh = {
 
   // Tabs
   tabList: '列表',
+  tabCollections: '合集',
   tabSettings: '设置',
   tabAbout: '关于',
 
@@ -154,7 +155,15 @@ const zh = {
   aboutFeedbackDesc: '如果您在使用中遇到问题或有功能建议，请通过 GitHub Issues 提交。',
   aboutChangelog: '更新日志',
   aboutChangelogV011: '修复 Windows 构建错误',
-  aboutChangelogV010: '项目初始版本发布'
+  aboutChangelogV010: '项目初始版本发布',
+
+  // Collections
+  collectionActors: '演员',
+  collectionStudios: '制片公司',
+  collectionMovieCount: '{count} 部影片',
+  collectionBack: '返回合集列表',
+  collectionEmpty: '暂无合集数据，请先扫描视频文件并确保 NFO 文件包含演员或制片公司信息。',
+  collectionSearch: '搜索合集...'
 } as const
 
 export type TranslationKeys = keyof typeof zh

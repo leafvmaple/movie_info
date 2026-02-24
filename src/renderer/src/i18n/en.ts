@@ -132,6 +132,7 @@ const en: Record<TranslationKeys, string> = {
 
   // Tabs
   tabList: 'List',
+  tabCollections: 'Collections',
   tabSettings: 'Settings',
   tabAbout: 'About',
 
@@ -156,7 +157,15 @@ const en: Record<TranslationKeys, string> = {
   aboutFeedbackDesc: 'If you encounter issues or have feature requests, please submit them via GitHub Issues.',
   aboutChangelog: 'Changelog',
   aboutChangelogV011: 'Fixed Windows build error',
-  aboutChangelogV010: 'Initial project release'
+  aboutChangelogV010: 'Initial project release',
+
+  // Collections
+  collectionActors: 'Actors',
+  collectionStudios: 'Studios',
+  collectionMovieCount: '{count} movies',
+  collectionBack: 'Back to collections',
+  collectionEmpty: 'No collections yet. Scan videos and ensure NFO files contain actor or studio information.',
+  collectionSearch: 'Search collections...'
 }
 
 export default en
