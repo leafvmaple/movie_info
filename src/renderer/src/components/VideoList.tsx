@@ -419,7 +419,7 @@ export default function VideoList({
           const nfo = nfoMap.get(record.key)
           const title = nfo?.title || record.displayName
           return (
-            <span title={title}>
+            <span title={record.primaryPath}>
               {title}
               {record.partCount > 1 && (
                 <Tag color="cyan" style={{ marginLeft: 6 }}>

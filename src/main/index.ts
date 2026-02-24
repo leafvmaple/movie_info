@@ -5,7 +5,7 @@ import { existsSync, readFileSync, writeFileSync } from 'fs'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 
-import { scanDirectories } from './services/scanner'
+import { scanDirectories, resolveUncPath } from './services/scanner'
 import { getVideoMetadata, checkFfprobe } from './services/ffprobe'
 import { readNfo, saveNfo, createEmptyNfo } from './services/nfo'
 import { getSettings, saveSettings, addDirectory, removeDirectory } from './services/settings'
@@ -204,7 +204,7 @@ function registerIpcHandlers(): void {
     if (result.canceled || result.filePaths.length === 0) {
       return null
     }
-    return result.filePaths[0]
+    return resolveUncPath(result.filePaths[0])
   })
 }
 

@@ -223,7 +223,7 @@ function App(): React.JSX.Element {
     // Fetch metadata in background (non-blocking) if ffprobe is available
     if (ffprobeAvailable) {
       setLoadingStatus('metadata')
-      const BATCH_SIZE = 10
+      const BATCH_SIZE = 30
       for (let i = 0; i < collectedFiles.length; i += BATCH_SIZE) {
         if (scanGenRef.current !== gen) return
         const batch = collectedFiles.slice(i, i + BATCH_SIZE)
@@ -251,7 +251,7 @@ function App(): React.JSX.Element {
     setLoadingStatus('nfo')
     const finalGroups = groupVideos(collectedFiles)
     const map = new Map<string, NfoData>()
-    const NFO_BATCH = 20
+    const NFO_BATCH = 50
     const groupsWithNfo = finalGroups.filter((g) => g.nfoPath)
     for (let i = 0; i < groupsWithNfo.length; i += NFO_BATCH) {
       if (scanGenRef.current !== gen) return
@@ -286,7 +286,7 @@ function App(): React.JSX.Element {
         const groups = groupVideos(files)
         const map = new Map<string, NfoData>()
         const groupsWithNfo = groups.filter((g) => g.nfoPath)
-        const NFO_BATCH = 20
+        const NFO_BATCH = 50
         for (let i = 0; i < groupsWithNfo.length; i += NFO_BATCH) {
           const batch = groupsWithNfo.slice(i, i + NFO_BATCH)
           const results = await Promise.allSettled(
