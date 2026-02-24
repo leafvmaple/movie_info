@@ -143,7 +143,20 @@ const ja: Record<TranslationKeys, string> = {
   save: '保存',
 
   // About
-  aboutDescription: '動画ファイルNFO情報管理ツール'
+  aboutDescription: '動画ファイルNFO情報管理ツール',
+  aboutVersion: 'バージョン',
+  aboutAuthor: '作者',
+  aboutHomepage: 'プロジェクトページ',
+  aboutTechStack: '技術スタック',
+  aboutLicense: 'ライセンス',
+  aboutElectron: 'Electron',
+  aboutChrome: 'Chrome',
+  aboutNode: 'Node.js',
+  aboutFeedback: 'フィードバック',
+  aboutFeedbackDesc: '問題や機能のご要望がある場合は、GitHub Issues からお知らせください。',
+  aboutChangelog: '更新履歴',
+  aboutChangelogV011: 'Windows ビルドエラーを修正',
+  aboutChangelogV010: 'プロジェクト初回リリース'
 }
 
 export default ja

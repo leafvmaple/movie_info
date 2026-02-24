@@ -30,6 +30,9 @@ interface CustomAPI {
   // Poster
   findPoster: (dirPath: string, baseName: string) => Promise<string | null>
 
+  // App info
+  getAppVersion: () => Promise<string>
+
   // Shell operations
   openFile: (filePath: string) => Promise<void>
   showInFolder: (filePath: string) => Promise<void>

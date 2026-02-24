@@ -4,7 +4,9 @@ import {
   ReloadOutlined,
   UnorderedListOutlined,
   SettingOutlined,
-  InfoCircleOutlined
+  InfoCircleOutlined,
+  GithubOutlined,
+  MailOutlined
 } from '@ant-design/icons'
 import VideoList from './components/VideoList'
 import PropertyPanel from './components/PropertyPanel'
@@ -14,7 +16,7 @@ import type { Language } from './i18n'
 import type { VideoFile, VideoMetadata, NfoData } from '../../common/types'
 
 const { Header, Content } = Layout
-const { Title, Paragraph } = Typography
+const { Title, Paragraph, Text, Link } = Typography
 
 export interface VideoFileWithMeta extends VideoFile {
   metadata?: VideoMetadata
@@ -100,6 +102,7 @@ function App(): React.JSX.Element {
   const [nfoLoading, setNfoLoading] = useState(false)
   const [ffprobeAvailable, setFfprobeAvailable] = useState(true)
   const [language, setLanguage] = useState<Language>('zh')
+  const [appVersion, setAppVersion] = useState('')
 
   const t = useMemo(() => createT(language), [language])
 
@@ -113,6 +116,7 @@ function App(): React.JSX.Element {
         setLanguage(settings.language)
       }
     })
+    window.api.getAppVersion().then(setAppVersion)
   }, [])
 
   // Check ffprobe availability on mount
@@ -445,10 +449,77 @@ function App(): React.JSX.Element {
 
           {activeTab === 'about' && (
             <div className="about-panel">
-              <Title level={3} style={{ marginTop: 0 }}>
-                {t('appTitle')}
-              </Title>
-              <Paragraph type="secondary">{t('aboutDescription')}</Paragraph>
+              <div className="about-header">
+                <Title level={3} style={{ marginTop: 0, marginBottom: 4 }}>
+                  {t('appTitle')}
+                </Title>
+                <Paragraph type="secondary" style={{ marginBottom: 0 }}>
+                  {t('aboutDescription')}
+                </Paragraph>
+              </div>
+
+              <div className="about-section">
+                <div className="about-info-grid">
+                  <Text type="secondary">{t('aboutVersion')}</Text>
+                  <Text>{appVersion || '...'}</Text>
+
+                  <Text type="secondary">{t('aboutAuthor')}</Text>
+                  <Link href="https://leafvmaple.com" target="_blank">leafvmaple</Link>
+
+                  <Text type="secondary">{t('aboutLicense')}</Text>
+                  <Text>MIT</Text>
+
+                  <Text type="secondary">{t('aboutHomepage')}</Text>
+                  <Link href="https://github.com/leafvmaple/movie_info" target="_blank">
+                    <GithubOutlined style={{ marginRight: 4 }} />
+                    github.com/leafvmaple/movie_info
+                  </Link>
+                </div>
+              </div>
+
+              <div className="about-section">
+                <Title level={5} style={{ marginTop: 0 }}>{t('aboutTechStack')}</Title>
+                <div className="about-tech-tags">
+                  <span className="tech-tag">{t('aboutElectron')} {window.electron?.process?.versions?.electron}</span>
+                  <span className="tech-tag">{t('aboutChrome')} {window.electron?.process?.versions?.chrome}</span>
+                  <span className="tech-tag">{t('aboutNode')} {window.electron?.process?.versions?.node}</span>
+                  <span className="tech-tag">React 19</span>
+                  <span className="tech-tag">Ant Design 6</span>
+                  <span className="tech-tag">TypeScript</span>
+                </div>
+              </div>
+
+              <div className="about-section">
+                <Title level={5} style={{ marginTop: 0 }}>{t('aboutChangelog')}</Title>
+                <div className="about-changelog">
+                  <div className="changelog-item">
+                    <Text strong>v0.1.1</Text>
+                    <Text type="secondary" style={{ marginLeft: 8, fontSize: 12 }}>2026-02-24</Text>
+                    <br />
+                    <Text type="secondary" style={{ fontSize: 13 }}>{t('aboutChangelogV011')}</Text>
+                  </div>
+                  <div className="changelog-item">
+                    <Text strong>v0.1.0</Text>
+                    <Text type="secondary" style={{ marginLeft: 8, fontSize: 12 }}>2026-02-24</Text>
+                    <br />
+                    <Text type="secondary" style={{ fontSize: 13 }}>{t('aboutChangelogV010')}</Text>
+                  </div>
+                </div>
+              </div>
+
+              <div className="about-section">
+                <Title level={5} style={{ marginTop: 0 }}>
+                  <MailOutlined style={{ marginRight: 6 }} />
+                  {t('aboutFeedback')}
+                </Title>
+                <Paragraph type="secondary" style={{ marginBottom: 8 }}>
+                  {t('aboutFeedbackDesc')}
+                </Paragraph>
+                <Link href="https://github.com/leafvmaple/movie_info/issues" target="_blank">
+                  <GithubOutlined style={{ marginRight: 4 }} />
+                  GitHub Issues
+                </Link>
+              </div>
             </div>
           )}
         </div>

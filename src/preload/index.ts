@@ -49,6 +49,9 @@ const api = {
   findPoster: (dirPath: string, baseName: string): Promise<string | null> =>
     ipcRenderer.invoke('find-poster', dirPath, baseName),
 
+  // App info
+  getAppVersion: (): Promise<string> => ipcRenderer.invoke('get-app-version'),
+
   // Shell operations
   openFile: (filePath: string): Promise<void> => ipcRenderer.invoke('open-file', filePath),
   showInFolder: (filePath: string): Promise<void> => ipcRenderer.invoke('show-in-folder', filePath),

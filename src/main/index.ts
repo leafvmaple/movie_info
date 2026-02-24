@@ -152,6 +152,11 @@ function registerIpcHandlers(): void {
     shell.openPath(filePath)
   })
 
+  // App info
+  ipcMain.handle('get-app-version', () => {
+    return app.getVersion()
+  })
+
   ipcMain.handle('show-in-folder', (_event, filePath: string) => {
     shell.showItemInFolder(filePath)
   })

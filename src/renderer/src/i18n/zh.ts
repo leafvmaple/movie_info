@@ -141,7 +141,20 @@ const zh = {
   save: '保存',
 
   // About
-  aboutDescription: '视频文件 NFO 信息管理工具'
+  aboutDescription: '视频文件 NFO 信息管理工具',
+  aboutVersion: '版本',
+  aboutAuthor: '作者',
+  aboutHomepage: '项目主页',
+  aboutTechStack: '技术栈',
+  aboutLicense: '许可证',
+  aboutElectron: 'Electron',
+  aboutChrome: 'Chrome',
+  aboutNode: 'Node.js',
+  aboutFeedback: '问题反馈',
+  aboutFeedbackDesc: '如果您在使用中遇到问题或有功能建议，请通过 GitHub Issues 提交。',
+  aboutChangelog: '更新日志',
+  aboutChangelogV011: '修复 Windows 构建错误',
+  aboutChangelogV010: '项目初始版本发布'
 } as const
 
 export type TranslationKeys = keyof typeof zh

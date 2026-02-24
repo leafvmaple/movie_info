@@ -143,7 +143,20 @@ const en: Record<TranslationKeys, string> = {
   save: 'Save',
 
   // About
-  aboutDescription: 'Video file NFO information manager'
+  aboutDescription: 'Video file NFO information manager',
+  aboutVersion: 'Version',
+  aboutAuthor: 'Author',
+  aboutHomepage: 'Homepage',
+  aboutTechStack: 'Tech Stack',
+  aboutLicense: 'License',
+  aboutElectron: 'Electron',
+  aboutChrome: 'Chrome',
+  aboutNode: 'Node.js',
+  aboutFeedback: 'Feedback',
+  aboutFeedbackDesc: 'If you encounter issues or have feature requests, please submit them via GitHub Issues.',
+  aboutChangelog: 'Changelog',
+  aboutChangelogV011: 'Fixed Windows build error',
+  aboutChangelogV010: 'Initial project release'
 }
 
 export default en
